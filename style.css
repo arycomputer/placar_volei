@@ -1,0 +1,123 @@
+       :root {
+            --bg-color: #f2f2f2;
+            --text-color: #000;
+            --card-bg: #fff;
+            --button-bg: #007bff;
+            --button-hover: #0056b3;
+            --reset-bg: #dc3545;
+            --reset-hover: #a71d2a;
+        }
+
+        body.dark {
+            --bg-color: #121212;
+            --text-color: #fff;
+            --card-bg: #1e1e1e;
+            --button-bg: #1a73e8;
+            --button-hover: #135ab5;
+            --reset-bg: #c62828;
+            --reset-hover: #8e0000;
+        }
+
+        body {
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 40px;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            padding: 8px;
+            font-size: 16px;
+            width: 150px;
+            margin-bottom: 10px;
+            text-align: center;
+            background: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .placar {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            margin: 20px 0;
+        }
+
+        .time {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 200px;
+        }
+
+        .pontos {
+            font-size: 48px;
+            margin: 10px 0;
+        }
+
+        .botoes {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        button {
+            font-size: 18px;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            background-color: var(--button-bg);
+            color: white;
+            transition: background 0.3s;
+        }
+
+        button:hover:not(:disabled) {
+            background-color: var(--button-hover);
+        }
+
+        button:disabled {
+            background-color: #888;
+            cursor: not-allowed;
+        }
+
+        .resetar {
+            margin-top: 20px;
+            background-color: var(--reset-bg);
+        }
+
+        .resetar:hover:not(:disabled) {
+            background-color: var(--reset-hover);
+        }
+
+        .config {
+            margin-bottom: 20px;
+        }
+
+        #mensagemFinal {
+            font-size: 20px;
+            margin-top: 20px;
+        }
+
+        #vozStatus {
+            margin-top: 10px;
+            font-style: italic;
+            font-size: 14px;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .top-bar button {
+            font-size: 14px;
+            padding: 6px 12px;
+        }
