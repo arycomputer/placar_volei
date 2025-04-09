@@ -4,6 +4,20 @@
         let vozMasculina = null;
         let vozFeminina = null;
 
+function checarOrientacao() {
+  const aviso = document.getElementById("orientacaoAviso");
+  const emRetrato = window.innerHeight > window.innerWidth;
+
+  if (emRetrato) {
+    aviso.style.display = "flex";
+  } else {
+    aviso.style.display = "none";
+  }
+}
+
+window.addEventListener("load", checarOrientacao);
+window.addEventListener("resize", checarOrientacao);
+
         function carregarVozes() {
             const vozesDisponiveis = speechSynthesis.getVoices();
             vozMasculina = vozesDisponiveis.find(v => v.lang === 'pt-BR' && v.name.toLowerCase().includes('ricardo'))
