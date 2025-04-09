@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Placar com Voz e Tema Escuro</title>
+    <style>
+        :root {
+            --bg-color: #f2f2f2;
+            --text-color: #000;
+            --card-bg: #fff;
+            --button-bg: #007bff;
+            --button-hover: #0056b3;
+            --reset-bg: #dc3545;
+            --reset-hover: #a71d2a;
+        }
+
+        body.dark {
+            --bg-color: #121212;
+            --text-color: #fff;
+            --card-bg: #1e1e1e;
+            --button-bg: #1a73e8;
+            --button-hover: #135ab5;
+            --reset-bg: #c62828;
+            --reset-hover: #8e0000;
+        }
+
+        body {
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 40px;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            padding: 8px;
+            font-size: 16px;
+            width: 150px;
+            margin-bottom: 10px;
+            text-align: center;
+            background: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .placar {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            margin: 20px 0;
+        }
+
+        .time {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 200px;
+        }
+
+        .pontos {
+            font-size: 48px;
+            margin: 10px 0;
+        }
+
+        .botoes {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        button {
+            font-size: 18px;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            background-color: var(--button-bg);
+            color: white;
+            transition: background 0.3s;
+        }
+
+        button:hover:not(:disabled) {
+            background-color: var(--button-hover);
+        }
+
+        button:disabled {
+            background-color: #888;
+            cursor: not-allowed;
+        }
+
+        .resetar {
+            margin-top: 20px;
+            background-color: var(--reset-bg);
+        }
+
+        .resetar:hover:not(:disabled) {
+            background-color: var(--reset-hover);
+        }
+
+        .config {
+            margin-bottom: 20px;
+        }
+
+        #mensagemFinal {
+            font-size: 20px;
+            margin-top: 20px;
+        }
+
+        #vozStatus {
+            margin-top: 10px;
+            font-style: italic;
+            font-size: 14px;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .top-bar button {
+            font-size: 14px;
+            padding: 6px 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="top-bar">
+        <h1>Placar do Jogo</h1>
+        <button onclick="alternarTema()">🌙 Tema</button>
+    </div>
+
+    <div class="config">
+        <label for="limitePontos">Limite de pontos:</label>
+        <input type="number" id="limitePontos" value="25" min="1" />
+    </div>
+
+    <div class="placar">
+        <div class="time" id="timeA">
+            <input type="text" id="nomeA" value="Time A" />
+            <div class="pontos" id="pontosA">0</div>
+            <div class="botoes">
+                <button onclick="alterarPlacar('A', 1)">+1</button>
+                <button onclick="alterarPlacar('A', -1)">-1</button>
+            </div>
+        </div>
+
+        <div class="time" id="timeB">
+            <input type="text" id="nomeB" value="Time B" />
+            <div class="pontos" id="pontosB">0</div>
+            <div class="botoes">
+                <button onclick="alterarPlacar('B', 1)">+1</button>
+                <button onclick="alterarPlacar('B', -1)">-1</button>
+            </div>
+        </div>
+    </div>
+
+    <button class="resetar" onclick="resetarPlacar()">Resetar Placar</button>
+    <div id="mensagemFinal"></div>
+    <div id="vozStatus">🎙️ Aguardando comandos de voz...</div>
+
+    <script>
+        let pontosA = 0;
+        let pontosB = 0;
+        let jogoEncerrado = false;
+        let vozMasculina = null;
+        let vozFeminina = null;
+
+        function carregarVozes() {
+            const vozesDisponiveis = speechSynthesis.getVoices();
+            vozMasculina = vozesDisponiveis.find(v => v.lang === 'pt-BR' && v.name.toLowerCase().includes('ricardo'))
+                || vozesDisponiveis.find(v => v.lang === 'pt-BR' && v.gender !== 'female'); // fallback
+            vozFeminina = vozesDisponiveis.find(v => v.lang === 'pt-BR' && v.name.toLowerCase().includes('luciana'))
+                || vozesDisponiveis.find(v => v.lang === 'pt-BR' && v.gender !== 'male'); // fallback
+        }
+
+        // Carregar vozes (pode demorar um pouquinho)
+        speechSynthesis.onvoiceschanged = carregarVozes;
+
+        function alterarPlacar(time, valor) {
+            if (jogoEncerrado) return;
+
+            if (time === 'A') {
+                pontosA = Math.max(0, pontosA + valor);
+                document.getElementById('pontosA').textContent = pontosA;
+
+                if (valor > 0) {
+                    falar(`Ponto para ${document.getElementById('nomeA').value}`, 'A');
+                } else {
+                    falar(`Removido ponto do ${document.getElementById('nomeA').value}`, 'A');
+                }
+
+            } else {
+                pontosB = Math.max(0, pontosB + valor);
+                document.getElementById('pontosB').textContent = pontosB;
+
+                if (valor > 0) {
+                    falar(`Ponto para ${document.getElementById('nomeB').value}`, 'B');
+                } else {
+                    falar(`Removido ponto do ${document.getElementById('nomeB').value}`, 'B');
+                }
+            }
+
+            verificarFimDeJogo();
+        }
+
+        function verificarFimDeJogo() {
+            const limite = parseInt(document.getElementById('limitePontos').value) || 0;
+            const diff = Math.abs(pontosA - pontosB);
+
+            if ((pontosA >= limite || pontosB >= limite) && diff >= 2) {
+                jogoEncerrado = true;
+
+                const vencedor = pontosA > pontosB
+                    ? document.getElementById('nomeA').value
+                    : document.getElementById('nomeB').value;
+
+                document.getElementById('mensagemFinal').textContent = `🏆 ${vencedor} venceu o jogo!`;
+                falar(`${vencedor} venceu o jogo!`, pontosA > pontosB ? 'A' : 'B');
+                desativarBotoes();
+            }
+        }
+
+        function desativarBotoes() {
+            document.querySelectorAll("button").forEach(btn => {
+                if (!btn.classList.contains('resetar')) {
+                    btn.disabled = true;
+                }
+            });
+        }
+
+        function resetarPlacar() {
+            pontosA = 0;
+            pontosB = 0;
+            jogoEncerrado = false;
+            document.getElementById('pontosA').textContent = pontosA;
+            document.getElementById('pontosB').textContent = pontosB;
+            document.getElementById('mensagemFinal').textContent = '';
+            document.querySelectorAll("button").forEach(btn => btn.disabled = false);
+        }
+
+        function alternarTema() {
+            document.body.classList.toggle('dark');
+        }
+
+        // 🎙️ Comando de voz
+        window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (window.SpeechRecognition) {
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'pt-BR';
+            recognition.continuous = true;
+            recognition.interimResults = false;
+
+            recognition.onresult = (event) => {
+                const comando = event.results[event.results.length - 1][0].transcript.toLowerCase();
+                interpretarComando(comando);
+            };
+
+            recognition.onstart = () => {
+                document.getElementById('vozStatus').textContent = '🎤 Ouvindo...';
+            };
+
+            recognition.onend = () => {
+                document.getElementById('vozStatus').textContent = '🎙️ Aguardando comandos de voz...';
+                recognition.start(); // reinicia automaticamente
+            };
+
+            recognition.start();
+
+            function interpretarComando(fala) {
+                if (fala.includes('ponto time a') || fala.includes('time a mais um')) {
+                    alterarPlacar('A', 1);
+                } else if (fala.includes('ponto time b') || fala.includes('time b mais um')) {
+                    alterarPlacar('B', 1);
+                } else if (fala.includes('remover ponto time a')) {
+                    alterarPlacar('A', -1);
+                } else if (fala.includes('remover ponto time b')) {
+                    alterarPlacar('B', -1);
+                } else if (fala.includes('resetar') || fala.includes('zerar placar')) {
+                    resetarPlacar();
+                }
+            }
+        } else {
+            document.getElementById('vozStatus').textContent = '❌ Comando de voz não suportado neste navegador.';
+        }
+
+        function falar(texto, time = 'A') {
+            const utterance = new SpeechSynthesisUtterance(texto);
+            utterance.lang = 'pt-BR';
+
+            if (time === 'A' && vozMasculina) {
+                utterance.voice = vozMasculina;
+            } else if (time === 'B' && vozFeminina) {
+                utterance.voice = vozFeminina;
+            }
+
+            speechSynthesis.speak(utterance);
+        }
+    </script>
+
+</body>
+
+</html>
