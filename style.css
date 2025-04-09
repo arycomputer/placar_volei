@@ -121,3 +121,23 @@
             font-size: 14px;
             padding: 6px 12px;
         }
+.aviso-orientacao {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(145deg, #111, #222);
+  color: white;
+  font-size: 24px;
+  font-family: sans-serif;
+  text-align: center;
+  padding: 40px 20px;
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.aviso-orientacao p {
+  margin: 0;
+  line-height: 1.5;
+}
